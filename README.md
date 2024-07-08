@@ -59,4 +59,5 @@ end
 
 ## How to append to modifiers
 See [`lib file`](https://github.com/lamia-zamia/biome_modifiers_patch/blob/main/files/lib.lua) and [`init.lua`](https://github.com/lamia-zamia/biome_modifiers_patch/blob/main/init.lua) for examples.  
-The easiest way is to replace `return init_biome_modifiers` with your code and insert `return init_biome_modifiers` back at the end, which is what my lib file does.
+The easiest way is to replace `return init_biome_modifiers` with your code and insert `return init_biome_modifiers` back at the end, which is what my lib file does.  
+Appends can be done during init, but not later than `OnMagicNumbersAndWorldSeedInitialized` since the game loads `data/scripts/biome_modifiers.lua` during `OnBiomeConfigLoaded`.
