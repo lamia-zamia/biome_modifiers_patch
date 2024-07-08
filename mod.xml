@@ -1,6 +1,6 @@
 <Mod
-	name="BiomeModifiersProbability"
-	description="This shit is broken"
+	name="BiomeModifiersPatch"
+	description="Settings for biome modifiers"
 	request_no_api_restrictions="0"
 >
 </Mod>
