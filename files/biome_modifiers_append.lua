@@ -9,7 +9,7 @@ end
 
 local function biome_modifiers_patch_add_biome_modifiers(modifiers)
 	for _, modifier in ipairs(modifiers) do
-		local probability = ModSettingGet("biome_modifiers_patch." .. modifier.id)
+		local probability = tonumber(ModSettingGet("biome_modifiers_patch." .. modifier.id)) or 0
 		if probability >= 0 then
 			local index = #biome_modifiers+1
 			biome_modifiers[index] = modifier

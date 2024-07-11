@@ -13,7 +13,15 @@ local function add_content(modifier)
 	"}"
 end
 
+local function check_settings(modifier)
+	if not ModSettingGet("biome_modifiers_patch." .. modifier.id) then
+		ModSettingSet("biome_modifiers_patch." .. modifier.id, modifier.probability)
+		ModSettingSetNextValue("biome_modifiers_patch." .. modifier.id, modifier.probability, false)
+	end
+end
+
 for i, modifier in ipairs(biome_modifiers) do
+	check_settings(modifier)
 	add_content(modifier)
 end
 
