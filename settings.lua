@@ -88,6 +88,7 @@ local function display_fake_button(mod_id, gui, id, setting, text, value, set_va
 	else
 		YellowIfHovered(gui, hovered)
 		if clicked then
+			GamePlaySound("ui", "ui/button_click", 0, 0)
 			set_setting(mod_id, setting, round(set_value))
 		end
 	end
@@ -253,7 +254,6 @@ local function BuildSettings()
 	end
 end
 
-mod_settings_version = 1
 mod_settings =
 {
 	{
