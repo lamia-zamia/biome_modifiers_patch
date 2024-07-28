@@ -12,8 +12,12 @@ local function biome_modifiers_patch_add_biome_modifiers(modifiers)
 		local probability = tonumber(ModSettingGet("biome_modifiers_patch." .. modifier.id)) or 0
 		if probability >= 0 then
 			local index = #biome_modifiers+1
+			local flag = modifier.requires_flag
 			biome_modifiers[index] = modifier
 			biome_modifiers[index].probability = probability
+			if flag and ModSettingGet("biome_modifiers_patch.flag_" .. flag) then 
+				biome_modifiers[index].requires_flag = nil
+			end
 		end
 	end
 end

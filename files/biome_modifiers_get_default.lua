@@ -4,13 +4,15 @@ local virtual_file = "mods/biome_modifiers_patch/defaults.lua"
 local content = "biome_modifiers_default = {}"
 
 local function add_content(modifier)
-	content = content .. "\n" .. 
-	"biome_modifiers_default[#biome_modifiers_default+1] = {" ..
-	"id = \"" .. modifier.id .. "\", " ..
-	"ui_description = \"" .. modifier.ui_description .. "\", " ..
-	"ui_decoration_file = \"" .. modifier.ui_decoration_file .. "\", " ..
-	"probability = " .. modifier.probability ..
-	"}"
+	local flag = modifier.requires_flag or "nil"
+	content = content .. "\n" ..
+		"biome_modifiers_default[#biome_modifiers_default+1] = {" ..
+		"requires_flag = \"" .. flag .. "\", " ..
+		"id = \"" .. modifier.id .. "\", " ..
+		"ui_description = \"" .. modifier.ui_description .. "\", " ..
+		"ui_decoration_file = \"" .. modifier.ui_decoration_file .. "\", " ..
+		"probability = " .. modifier.probability ..
+		"}"
 end
 
 local function check_settings(modifier)

@@ -50,7 +50,7 @@ local function YellowIfHovered(gui, hovered)
 	if hovered then GuiColorSetForNextWidget(gui, 1, 1, 0.7, 1) end
 end
 
-local function display_checkbox(mod_id, gui, setting, value, x, y, id)
+local function display_toggle_checkbox(mod_id, gui, setting, value, x, y, id)
 	local offset_w = GuiGetTextDimensions(gui, "  Disabled  ")
 	GuiZSetForNextWidget(gui, -1)
 	GuiImageNinePiece(gui, id, x + 2, y + 2, offset_w, 6, 0)
@@ -75,6 +75,40 @@ local function display_checkbox(mod_id, gui, setting, value, x, y, id)
 		if new_value == 0 then new_value = -2 end
 		if new_value == 2 then new_value = 0 end
 		set_setting(mod_id, setting, new_value)
+	end
+end
+
+local function display_flag_checkbox(gui, setting, value, id)
+	if setting.requires_flag and value > 0 then
+		if HasFlagPersistent(setting.requires_flag) then return end
+		local _, _, _, x, y, w = GuiGetPreviousWidgetInfo(gui)
+		local offset = 4
+		x = x + w + offset
+		local offset_w = GuiGetTextDimensions(gui, "  Ignore flag  ")
+		GuiZSetForNextWidget(gui, -1)
+		GuiImageNinePiece(gui, id, x, y + 2, offset_w, 6, 0)
+		local clicked, _, hovered = GuiGetPreviousWidgetInfo(gui)
+		GuiZSetForNextWidget(gui, 1)
+		GuiImageNinePiece(gui, id, x, y + 2, 6, 6)
+		local flag_setting = "biome_modifiers_patch.flag_" .. setting.requires_flag
+		local flag_setting_value = ModSettingGetNextValue(flag_setting)
+		if flag_setting_value then
+			GuiColorSetForNextWidget(gui, 0, 0.8, 0, 1)
+			GuiText(gui, offset + 1, 0, "V")
+			GuiText(gui, 0, 0, " ")
+			YellowIfHovered(gui, hovered)
+		else
+			GuiColorSetForNextWidget(gui, 0.8, 0, 0, 1)
+			GuiText(gui, offset + 1, 0, "X")
+			GuiText(gui, 0, 0, " ")
+			YellowIfHovered(gui, hovered)
+			
+		end
+		GuiText(gui, 0, 0, "Ignore flag")
+		if clicked then
+			ModSettingSet(flag_setting, not flag_setting_value)
+			ModSettingSetNextValue(flag_setting, not flag_setting_value, false)
+		end
 	end
 end
 
@@ -112,7 +146,8 @@ local function display_modifiers_fancy(mod_id, gui, in_main_menu, im_id, setting
 	GuiImageNinePiece(gui, id(), gui_x, gui_y, gui_w, gui_h, 1, setting.graphics)
 	GuiText(gui, offset_w / 1.5, 0, " ")
 	_, _, _, gui_x = GuiGetPreviousWidgetInfo(gui)
-	display_checkbox(mod_id, gui, setting, value, gui_x, gui_y, id())
+	display_toggle_checkbox(mod_id, gui, setting, value, gui_x, gui_y, id())
+	display_flag_checkbox(gui, setting, value, id())
 	GuiLayoutEnd(gui)
 	if value < 0 then
 		GuiText(gui, 0, 0, " ")
@@ -150,7 +185,8 @@ local function display_modifiers_simple(mod_id, gui, in_main_menu, im_id, settin
 	GuiTooltip(gui, "id: " .. setting.id, "")
 	GuiText(gui, 10, 0, " ")
 	local _, _, _, gui_x, gui_y = GuiGetPreviousWidgetInfo(gui)
-	display_checkbox(mod_id, gui, setting, value, gui_x, gui_y, id())
+	display_toggle_checkbox(mod_id, gui, setting, value, gui_x, gui_y, id())
+	display_flag_checkbox(gui, setting, value, id())
 	GuiLayoutEnd(gui)
 	if value < 0 then
 		return
@@ -180,7 +216,7 @@ local function get_modifiers_id()
 end
 
 local function reset_probabilities(mod_id)
-	biome_modifiers = dofile_once(virtual_file)
+	local biome_modifiers = dofile_once(virtual_file)
 	for i, modifier in ipairs(biome_modifiers) do
 		set_setting(mod_id, modifier, modifier.probability)
 	end
@@ -213,9 +249,10 @@ local function BuildSettings()
 			ui_text = "All of the following settings apply only in a new game",
 			not_setting = true,
 		}
-		biome_modifiers = dofile_once(virtual_file)
+		local biome_modifiers = dofile_once(virtual_file)
 		for i, modifier in ipairs(biome_modifiers) do
-			mod_settings[settings_id].settings[#mod_settings[settings_id].settings + 1] = {
+			local index = #mod_settings[settings_id].settings + 1
+			mod_settings[settings_id].settings[index] = {
 				id = modifier.id,
 				ui_description = modifier.ui_description,
 				value_default = modifier.probability,
@@ -224,8 +261,11 @@ local function BuildSettings()
 				graphics = modifier.ui_decoration_file,
 				gui_id = 10 * i,
 				scope = MOD_SETTING_SCOPE_NEW_GAME,
-				ui_fn = settings_ui,
+				ui_fn = settings_ui
 			}
+			if modifier.requires_flag ~= "nil" then
+				mod_settings[settings_id].settings[index].requires_flag = modifier.requires_flag
+			end
 		end
 		mod_settings[settings_id + 1] = {
 			category_id = "reset_cat",
