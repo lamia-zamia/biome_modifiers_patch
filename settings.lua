@@ -261,10 +261,10 @@ local function BuildSettings()
 				graphics = modifier.ui_decoration_file,
 				gui_id = 10 * i,
 				scope = MOD_SETTING_SCOPE_NEW_GAME,
-				ui_fn = settings_ui
+				ui_fn = settings_ui,
 			}
 			if modifier.requires_flag ~= "nil" then
-				mod_settings[settings_id].settings[index].requires_flag = modifier.requires_flag
+				mod_settings[settings_id].settings[index]["requires_flag"] = modifier.requires_flag
 			end
 		end
 		mod_settings[settings_id + 1] = {
