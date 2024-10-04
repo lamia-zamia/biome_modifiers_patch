@@ -1,30 +1,23 @@
 dofile("data/scripts/lib/mod_settings.lua")
 local whitebox = "data/debug/whitebox.png"
 local virtual_file = "mods/biome_modifiers_patch/defaults.lua"
-local patch_needed = true
 local settings_needs_to_build = true
 
 local mod_id = "biome_modifiers_patch"
-mod_settings_version = 1
 
-
-local function CheckForPatchGamesInitlua(file, patch) --checking if patch was already applied, file name should be the same between mods
+local function PatchGamesInitlua() --patching vanilla's init.lua, we are doing it here since this file loads before any mods
+	local file = "data/scripts/init.lua"
+	local patch = "mods/biome_modifiers_patch/files/init_biome_modifiers_patcher.lua"
 	local file_appends = ModLuaFileGetAppends(file)
 	local strip_pattern = "[^/]*.lua$"
+
 	for _, append in ipairs(file_appends) do
-		if append:match(strip_pattern) == patch:match(strip_pattern) then
-			return false
+		if append:match(strip_pattern) == "init_biome_modifiers_patcher.lua" then
+			return
 		end
 	end
-	return true
-end
-local function PatchGamesInitlua() --patching vanilla's init.lua, we are doing it here since this file loads before any mods
-	if ModIsEnabled(mod_id) then --thats crazy, but it can be used to detect if you are in main menu or not
-		local file = "data/scripts/init.lua"
-		local patch = "mods/biome_modifiers_patch/files/init_biome_modifiers_patcher.lua"
-		if CheckForPatchGamesInitlua(file, patch) then ModLuaFileAppend(file, patch) end
-		patch_needed = false
-	end
+
+	ModLuaFileAppend(file, patch)
 end
 
 local function diplay_text_with_separator(mod_id, gui, in_main_menu, im_id, setting)
@@ -102,7 +95,6 @@ local function display_flag_checkbox(gui, setting, value, id)
 			GuiText(gui, offset + 1, 0, "X")
 			GuiText(gui, 0, 0, " ")
 			YellowIfHovered(gui, hovered)
-			
 		end
 		GuiText(gui, 0, 0, "Ignore flag")
 		if clicked then
@@ -324,9 +316,8 @@ mod_settings =
 }
 
 function ModSettingsUpdate(init_scope)
-	local old_version = mod_settings_get_version(mod_id)
 	mod_settings_update(mod_id, mod_settings, init_scope)
-	if patch_needed then PatchGamesInitlua() end
+	if init_scope == 0 or init_scope == 1 then PatchGamesInitlua() end
 	if settings_needs_to_build then BuildSettings() end
 end
 
