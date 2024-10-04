@@ -16,32 +16,27 @@ You will need to put the patch above in your mods folder and add following code 
 <summary>settings.lua</summary>
 
 ```lua
-local patch_needed = true
-local function CheckForPatchGamesInitlua(file, patch) --checking if patch was already applied, file name should be the same between mods
+local function PatchGamesInitlua() --patching vanilla's init.lua, we are doing it here since this file loads before any mods
+	local file = "data/scripts/init.lua"
+	local patch = "mods/biome_modifiers_patch/files/init_biome_modifiers_patcher.lua"
 	local file_appends = ModLuaFileGetAppends(file)
 	local strip_pattern = "[^/]*.lua$"
+
 	for _, append in ipairs(file_appends) do
-		if append:match(strip_pattern) == patch:match(strip_pattern) then
-			return false
+		if append:match(strip_pattern) == "init_biome_modifiers_patcher.lua" then
+			return
 		end
 	end
-	return true
-end
-local function PatchGamesInitlua() --patching vanilla's init.lua, we are doing it here since this file loads before any mods
-	if ModIsEnabled(mod_id) then --thats crazy, but it can be used to detect if you are in main menu or not
-		local file = "data/scripts/init.lua"
-		local patch = "mods/YOUR_PATH_TO_PATCH/init_biome_modifiers_patcher.lua"
-		if CheckForPatchGamesInitlua(file, patch) then ModLuaFileAppend(file, patch) end
-		patch_needed = false
-	end
+
+	ModLuaFileAppend(file, patch)
 end
 ```
 </details>  
 
-Don't forget to change `YOUR_PATH_TO_PATCH` and notice that `local mod_id = YOUR_MOD_HERE` needs to be above these functions.
+Don't forget to change `patch` path.
 <br>
 
-And add following line in `ModSettingsUpdate` function:
+And add `if init_scope == 0 or init_scope == 1 then PatchGamesInitlua() end` line in `ModSettingsUpdate` function:
 
 <details>
 <summary>settings.lua</summary>
@@ -50,7 +45,7 @@ And add following line in `ModSettingsUpdate` function:
 function ModSettingsUpdate(init_scope)
 	local old_version = mod_settings_get_version(mod_id)
 	mod_settings_update(mod_id, mod_settings, init_scope)
-	if patch_needed then PatchGamesInitlua() end --this line
+	if init_scope == 0 or init_scope == 1 then PatchGamesInitlua() end --this line
 end
 ```
 </details>
