@@ -47,7 +47,10 @@ ModLuaFileAppend("data/scripts/biome_modifiers.lua", "mods/biome_modifiers_patch
 ```
 
 Don't forget to change path.
+
 </blockquote></details>
+
+</details>
 
 ## How to append to modifiers
 See [`append file`](https://github.com/lamia-zamia/biome_modifiers_patch/blob/main/files/biome_modifiers_append.lua) and [`init.lua`](https://github.com/lamia-zamia/biome_modifiers_patch/blob/main/init.lua) for examples.  
